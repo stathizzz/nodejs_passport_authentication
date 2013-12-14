@@ -1,0 +1,11 @@
+- if (userdata)
+    -if (userdata.name)
+        h1 Hello #{userdata.provider} guy #{userdata.name}
+    -else if (userdata.email)
+        h1 Hello #{userdata.provider} guy #{userdata.email}
+    -else
+        h1 Hello #{userdata.provider} guy
+    a(href="/logout") Logout
+- else
+    h1 user undefined
+    a(href="/logout") Logout
