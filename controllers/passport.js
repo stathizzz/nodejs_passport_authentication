@@ -42,13 +42,12 @@ module.exports = function (config, model) {
         });
     });
 
-  	passport.use(new LocalStrategy({
+    passport.use(new LocalStrategy({
             usernameField: 'email',
             passwordField: 'password'
         },
-
-            function(email, password, done) {
-                UserController.isValidLocalUser(model, config, email, password, function(err, user, content) {
+        function(email, password, done) {
+            UserController.isValidLocalUser(model, config, email, password, function(err, user, content) {
                 if (err) { return done(err); }
 
                 if (!user) {

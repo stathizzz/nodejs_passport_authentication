@@ -82,7 +82,6 @@ module.exports = {
         });
     },
     existsLocalUser : function(req, res, next) {
-        console.log("user " + req.body.email);
         req.model.count('authentication', {
                 emails: {
                     $elemMatch: {
