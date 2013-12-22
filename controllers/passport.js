@@ -42,17 +42,21 @@ module.exports = function (config, model) {
         });
     });
 
-  	passport.use(new LocalStrategy(
-            function(username, password, done) {
-                UserController.isValidLocalUser(model, config, username, password, function(err, user, content) {
+  	passport.use(new LocalStrategy({
+            usernameField: 'email',
+            passwordField: 'password'
+        },
+
+            function(email, password, done) {
+                UserController.isValidLocalUser(model, config, email, password, function(err, user, content) {
                 if (err) { return done(err); }
 
                 if (!user) {
-                    console.log("local profile" + JSON.stringify(content));
+                    console.log("local profile is " + JSON.stringify(content));
                     return done(null, false, content);
                 }
 
-                user.provider = config.app.provider;
+                //user.provider = config.app.provider;
                 return done(null, user);
             });
         }

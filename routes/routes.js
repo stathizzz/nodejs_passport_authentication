@@ -21,7 +21,7 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 var UserController = require('./../controllers/userauth');
-var passport = require('passport');
+
 
 module.exports = function(attachStaff, app){
 	app.get("/", UserController.isAuthenticated, function(req, res, next){
@@ -69,7 +69,7 @@ module.exports = function(attachStaff, app){
 	});
 
 	app.post("/signup", attachStaff, UserController.existsLocalUser,  function (req, res, next) {
-        UserController.signupLocalUser(req.model, req.settings, req.body.username, req.body.password, function(err, user){
+        UserController.signupLocalUser(req.model, req.settings, req.body.email, req.body.password, function(err, user){
             req.login(user, function(err) {
                 if (err) { if (next) return next(err); }
                 return res.redirect('/profile');

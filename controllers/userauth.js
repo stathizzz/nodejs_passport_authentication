@@ -82,10 +82,11 @@ module.exports = {
         });
     },
     existsLocalUser : function(req, res, next) {
+        console.log("user " + req.body.email);
         req.model.count('authentication', {
                 emails: {
                     $elemMatch: {
-                        value: req.body.username
+                        value: req.body.email
                     }
                 },
                 provider: req.settings.app.provider
@@ -94,7 +95,7 @@ module.exports = {
                 if (count === 0) {
                     if (next) next();
                 } else {
-                    console.log("user " + req.body.username + ' exists locally!');
+                    console.log("user " + req.body.email + ' exists locally!');
                     res.redirect("/signup");
                 }
         });
@@ -116,11 +117,11 @@ module.exports = {
         });
 
     },
-    isValidLocalUser : function(model, config, username, password, done) {
+    isValidLocalUser : function(model, config, email, password, done) {
         model.getOne('authentication',
             {   emails: {
                     $elemMatch: {
-                        value: username
+                        value: email
                     }
                 },
                 provider: config.app.provider
