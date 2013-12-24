@@ -1,0 +1,37 @@
+extends layout
+
+block a_content
+    include ../mixins/modal
+    #login-container.container
+        div.panel
+            div.panel-body
+                form#login-form.span4( method="post")
+                    h1 Hello!
+                    p.subheading Please Login To Your Account
+                    label Email
+                    input.span4.required(type="text", name="email", id='email-tf', value="#{email}")
+                    label Password
+                    input.span4.required(type="password", name="password", id='pass-tf')
+                    button#btn-login.btn.btn-primary(type="submit")
+                        i.icon-lock.icon-white
+                        | Sign in
+                    label#remember-me.checkbox Remember Me
+                        input(type="checkbox", checked='checked')
+                    div.row
+                        div.col-sm-2
+                            a#forgot-password(href='#lost-pwd-mod') Forgot Your Password?
+                        div.col-sm-2
+                            a#create-account(href='/account/signup') Create An Account
+        div.panel
+            div.panel-body
+                ul.list-group
+                    li.list-group-item: a(href="/auth/facebook") Log In With Facebook
+                    li.list-group-item: a(href="/auth/twitter") Log In With Twitter
+                    li.list-group-item: a(href="/auth/google") Log In With Google
+    mixin alertModal('alert-mod')
+    mixin forgotPasswordModal()
+block a_scripts
+    script(src='/javascripts/account/views/login.js')
+    script(src='/javascripts/account/controllers/loginController.js')
+    script(src='/javascripts/account/form-validators/loginValidator.js')
+    script(src='/javascripts/account/form-validators/emailValidator.js')

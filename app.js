@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2003-2013, Efstathios D. Sfecas  <stathizzz@gmail.com>
+ Copyright (c) 2013-2014, Efstathios D. Sfecas  <stathizzz@gmail.com>
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -21,92 +21,91 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 var express = require('express'),
-  fs = require('fs'),
-  http = require('http'),
-  path = require('path'),
-  model = new (require('./models/ContentModel')),
-  passport = require("passport"),
-  flash = require("connect-flash"),
-  stylus = require('stylus'),
-  bootstrapper = require('./config/bootstrapper');
-
-
-var models_dir = __dirname + '/models';
-fs.readdirSync(models_dir).forEach(function (file) {
-  if(file[0] === '.') return; 
-  require(models_dir+'/'+ file);
-});
-
+    http = require('http'),
+    path = require('path'),
+    url = require('url'),
+    fs = require('fs'),
+    stylus = require('stylus'),
+    flash = require("connect-flash"),
+    model = require('./models/ContentModel'),
+    View = require("./views/Base"),
+    bootstrapper = require('./config/bootstrapper'),
+    mailer = require('express-mailer'),
+    passport = require("passport");
 
 var app = express();
 
+var MemStore = express.session.MemoryStore;
 
-app.configure(function () {
-
-    app.set('port', process.env.PORT || 3000);
-    app.set('views', __dirname + '/views');
-    app.set('view engine', 'jade');
-    /* enable stylus css editor */
-    app.use(stylus.middleware(path.join(__dirname, 'public')));
-    app.use(express.favicon());
-    /* enable logger */
-    app.use(express.logger('dev'));
-    /* enable cookies on browser */
-    app.use(express.cookieParser());
-    /* enable html body parsing */
-    app.use(express.bodyParser());
-    /* enable session on server memory */
-    app.use(express.session({ secret: 'keyboard cat', maxAge: 360*5 }));
-    /* enable paspport authentication */
-    app.use(passport.initialize());
-    app.use(passport.session());
-    app.use(express.methodOverride());
-    app.use(flash());
-    /* enable router */
-    app.use(app.router);
-    app.use(express.static(path.join(__dirname, 'public')));
-
-
-});
-
-app.configure('development', function () {
-  app.use(express.errorHandler());
-});
-
-
-app.use(function(err, req, res, next){
-  res.status(err.status || 500);
-  res.render('500', { error: err });
-});
-
-app.use(function(req, res, next){
-  res.status(404);
-  if (req.accepts('html')) {
-    res.render('404', { url: req.url });
-    return;
-  }
-  if (req.accepts('json')) {
-    res.send({ error: 'Not found' });
-    return;
-  }
-  res.type('txt').send('Not found');
+// all environments
+app.set('port', process.env.PORT || 3000);
+app.set('views', path.join(__dirname, 'views'));
+/* enable jade */
+app.set('view engine', 'jade');
+/* enable stylus css editor */
+app.use(stylus.middleware(path.join(__dirname, 'public')));
+app.use(express.favicon());
+/* enable logger */
+app.use(express.logger('dev'));
+/* enable cookies on browser */
+app.use(express.cookieParser());
+/* enable session on server memory */
+app.use(express.session({ secret: "keyboard cat", maxAge: 360*5, store: MemStore({
+    reapInterval: 60000 * 10
+})}));
+/* enable html body parsing */
+app.use(express.bodyParser());
+/* enable paspport authentication */
+app.use(passport.initialize());
+app.use(passport.session());
+/* enable PUT and DELETE requests to be parsed on client*/
+app.use(express.methodOverride());
+app.use(flash());
+/* enable router */
+app.use(app.router);
+app.use(express.static(path.join(__dirname, 'public')));
+// development only
+if ('development' === app.get('env')) {
+    app.use(express.errorHandler());
+}
+/* Error page handling when router fails */
+app.use (function (req, res) {
+    new View(req, res, 'error').render({
+        msg: "Page not found!"
+    });
 });
 
 bootstrapper.bootstrap(app, function(err, settings) {
 
-    model.initDB(settings, function(err, con) {
+    mailer.extend(app, {
+        from: settings.email.from,
+        host: settings.email.host, // hostname
+        secureConnection: settings.email.secureConnection, // use SSL
+        port: settings.email.port, // port for secure SMTP
+        transportMethod: settings.email.transportMethod, // default is SMTP. Accepts anything that nodemailer accepts
+        auth: {
+            user: settings.email.auth.user,
+            pass: settings.email.auth.pass
+        }
+    });
+
+    model.initDB(settings, function(err, db) {
         if (err) throw err;
         http.createServer(app).listen(app.get('port'), function () {
-            console.log("Express server listening on port " + app.get('port'));
-            require('./controllers/passport')(settings, model);
+            console.log(
+                'Successfully connected to ' + settings.mongo.db_name,
+                '\nExpress server listening on port ' + settings.port
+            );
+            require('./controllers/account/passport')(model, settings);
+            //routes binder
             var attachStaff = function(req, res, next) {
                 req.model = model;
                 req.settings = settings;
                 if (next) next();
             };
-            require('./routes/routes')(attachStaff, app);
+            require('./routes/account').setup_all(model, settings, attachStaff, app);
+            console.log("Successfully setup Routes !");
         });
-
     });
 });
 

@@ -1,0 +1,150 @@
+//-link(href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.css", rel="stylesheet")
+//-link(href="http://getbootstrap.com/2.3.2/assets/js/google-code-prettify/prettify.css", rel="stylesheet")
+link(href="/third-party/bootstrap-modal/css/bootstrap-modal-bs3patch.css", rel="stylesheet")
+link(href="/third-party/bootstrap-modal/css/bootstrap-modal.css", rel="stylesheet")
+//-script(src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js")
+//-script(type="text/javascript", src="http://getbootstrap.com/2.3.2/assets/js/google-code-prettify/prettify.js")
+//-script(src="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.js")
+script(src='/third-party/bootstrap-modal/js/bootstrap-modalmanager.js')
+script(src='/third-party/bootstrap-modal/js/bootstrap-modal.js')
+
+mixin alertModal(id)
+    div.modal-alert.modal.fade(id="#{id}")
+        div.modal-header
+            button.close(data-dismiss='modal') x
+            h3
+        div.modal-body
+            p
+        div.modal-footer
+            button#ok.btn.btn-warning(data-dismiss="modal") OK
+mixin confirmModal(id)
+    div.modal-confirm.modal.fade(id="#{id}")
+        div.modal-header
+            button.close(data-dismiss='modal') x
+            h3
+        div.modal-body
+            p
+        div.modal-footer
+            button.cancel.btn(data-dismiss="modal") Cancel
+            button.submit.btn Ok
+mixin formErrorsModal(id)
+    div.modal-form-errors.modal.fade(id="#{id}")
+        div.modal-header
+            button.close(data-dismiss='modal') x
+            h3 Whoops!
+        div.modal-body
+            p.subheading It looks like there was a problem.
+            ul
+        div.modal-footer
+            button.btn.btn-warning(data-dismiss="modal") OK
+mixin forgotPasswordModal()
+    #get-credentials.modal.fade
+        div.modal-header
+            button.close(data-dismiss='modal') x
+            h3 Retrieve Password
+        div.modal-body
+            form#get-credentials-form.well.span5(method="post")
+                p Please enter the email address associated with your account
+                input.span5.required(type="text", name="email", id='email-tf')
+                button#submit.btn.btn-primary(type="submit") Submit
+                button#cancel.btn.btn-primary(data-dismiss="modal") Cancel
+                div.alert.alert-error
+                button.close(data-dismiss="alert")
+        div.modal-footer
+mixin resetPasswordModal()
+    #set-password.modal.fade()
+        div.modal-header
+            h3 Reset Password
+        div.modal-body
+            form#set-password-form.well.span5( method="post")
+                p Please enter your new password
+                input.span5.required(type="password", name="pass", id='pass-tf')
+                button#submit.btn.btn-primary(type="submit") Submit
+                div.alert.alert-error.hide
+                button.close(data-dismiss="alert")
+        div.modal-footer
+mixin responsiveModal(id, title, width, data)
+    div.modal.fade(id="#{id}", tabindex='-1',data-width="#{width}", style='display: none;')
+        .modal-header
+            button.close(type='button', data-dismiss='modal', aria-hidden='true') ×
+            h3.modal-title= title
+        .modal-body
+            .row
+                - if (data instanceof Array)
+                    - var cl_md = 'col-sm-6';
+                    - var cl_wdth = width/2;
+                    - for (var i=0; i<data.length; i++)
+                        div(class="#{cl_md}")
+                            h4 #{data[i].title}
+                            - for (var j=0; j<data[i].num; j++)
+                                p
+                                    input.form-control(type='text')
+        .modal-footer
+            button.btn.btn-default(type='button', data-dismiss='modal') Close
+            button.btn.btn-primary(type='button') Save changes
+
+mixin stackableModal(id, title, body, stackname)
+    div.modal.fade(id='#{id}', tabindex='-1', data-focus-on='input:first', style='display: none;')
+        .modal-header
+            button.close(type='button', data-dismiss='modal', aria-hidden='true') ×
+            h3.modal-title= title
+        .modal-body
+            p= body
+            input.form-control(type='text', data-tabindex='1')
+            //input.form-control(type='text', data-tabindex='2')
+            //input.form-control(type='text', data-tabindex='3')
+            - if (stackname && stackname !== '')
+                button.btn.btn-default(data-toggle='modal', href="#{stackname}") Launch modal
+        .modal-footer
+            button.btn.btn-default(type='button', data-dismiss='modal') Close
+            button.btn.btn-primary(type='button') Ok
+
+mixin fullWidthModal(id, title, body)
+    div.modal.container.fade(id="#{id}", tabindex='-1', style='display: none;')
+        .modal-header
+            button.close(type='button', data-dismiss='modal', aria-hidden='true') ×
+            h4.modal-title= title
+        .modal-body
+            != body
+        .modal-footer
+            button.btn.btn-default(type='button', data-dismiss='modal') Close
+            button.btn.btn-primary(type='button') Save changes
+mixin ajaxModal(id)
+    script.
+        var $modal = $('#' + id);
+        $('.ajax .demo').on('click', function(){
+            // create the backdrop and wait for next modal to be triggered
+            $('body').modalmanager('loading');
+            setTimeout(function(){
+                $modal.load('modal_ajax_test.html', '', function(){
+                    $modal.modal();
+                });
+            }, 1000);
+        });
+        $modal.on('click', '.update', function(){
+            $modal.modal('loading');
+            setTimeout(function(){
+                $modal
+                    .modal('loading')
+                    .find('.modal-body')
+                        .prepend('<div class="alert alert-info fade in">' +
+                        'Updated!<button type="button" class="close" data-dismiss="alert">&times;</button>' +
+                        '</div>');
+            }, 1000);
+        });
+mixin modals_example()
+    button.demo.btn.btn-primary.btn-lg(data-toggle="modal", href="#responsive") View responsive demo
+    mixin responsiveModal('responsive', 'This is the title','40em',[{ "title": "first column title", "num": "6"},{"title": "second column title", "num": "8" }])
+    button.demo.btn.btn-primary.btn-lg(data-toggle="modal", href="#stack1") View Stackable demo
+    mixin stackableModal('stack1', 'This is the title','This is the body', '#stack2')
+    mixin stackableModal('stack2', 'This is the second title','This is the second body')
+    button.demo.btn.btn-primary.btn-lg(data-toggle="modal", href="#full-width") View Full Width demo
+    mixin fullWidthModal("full-width", "this the the title", 'This modal will resize itself and all the rest is bullshit'+'<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis sollicitudin ipsum ac ante fermentum suscipit. In ac augue non purus accumsan lobortis id sed nibh. Nunc egestas hendrerit ipsum, et porttitor augue volutpat non. Aliquam erat volutpat. Vestibulum scelerisque lobortis pulvinar. Aenean hendrerit risus neque, eget tincidunt leo. Vestibulum est tortor, commodo nec cursus nec, vestibulum vel nibh. Morbi elit magna, ornare placerat euismod semper, dignissim vel odio. Phasellus elementum quam eu ipsum euismod pretium.</p>')
+    button.demo.btn.btn-primary.btn-lg(data-toggle="modal", href="#ajax-modal") View Ajax jQuery demo
+    mixin ajaxModal('ajax-modal')
+    button.demo.btn.btn-primary.btn-lg(data-toggle="modal", href="#set-password") View reset password demo
+    mixin resetPasswordModal()
+    button.demo.btn.btn-primary.btn-lg(data-toggle="modal", href="#forgot-password") View forgot password Width demo
+    mixin forgotPasswordModal()
+    button.demo.btn.btn-primary.btn-lg(data-toggle="modal", href="#form-errors") View form Errors demo
+    mixin formErrorsModal('form-errors')
