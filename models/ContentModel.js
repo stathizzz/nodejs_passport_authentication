@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2003-2013, Efstathios D. Sfecas  <stathizzz@gmail.com>
+ Copyright (c) 2013-2014, Efstathios D. Sfecas  <stathizzz@gmail.com>
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -21,33 +21,38 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 var crypto = require("crypto"),
-    MongoClient = require('mongodb').MongoClient,
     BaseModel = require("./Base"),
-	model = new BaseModel();
+    model = new BaseModel();
 
 var ContentModel = model.extend({
     count: function(collection_name, querydata, callback) {
         this.db.collection(collection_name).count(querydata, callback || function(){ });
     },
-	insert: function(collection_name, data, callback) {
-		data.local_ID = crypto.randomBytes(20).toString('hex');
-		this.db.collection(collection_name).insert(data, {safe: true}, callback || function(){ });
-	},
-	update: function(collection_name, data, callback) {
-        this.db.collection(collection_name).update({local_ID: data.local_ID}, data, {safe: true}, callback || function(){ });
-	},
-	getlist: function(collection_name, querydata, callback) {
+    insert: function(collection_name, data, callback) {
+        data.local_ID = crypto.randomBytes(20).toString('hex');
+        this.db.collection(collection_name).insert(data, {safe: true}, callback || function(){ });
+    },
+    update: function(collection_name, data, callback) {
+        this.db.collection(collection_name).update(data, {safe: true}, callback || function(){ });
+    },
+    updateSpecificFields: function(collection_name, data_id, data, callback) {
+        this.db.collection(collection_name).update(data_id,  {$set: data}, {safe: true}, callback || function(){ });
+    },
+    updateAllFields: function(collection_name, data_id, new_data, callback) {
+        this.db.collection(collection_name).update(data_id,  new_data, {safe: true}, callback || function(){ });
+    },
+    getlist: function(collection_name, querydata, callback) {
        this.db.collection(collection_name).find(querydata || {}).toArray(function(err, records) {
             callback(err, records);
         });
-	},
-	getOne: function(collection_name, querydata, callback) {
-		this.db.collection(collection_name).findOne(querydata, callback);
-	},
+    },
+    getOne: function(collection_name, querydata, callback) {
+        this.db.collection(collection_name).findOne(querydata, callback);
+    },
     removeOne: function(collection_name, querydata, callback) {
 //        this.db.collection(collection_name).findOne(querydata, function(err, doc) {
 //            console.log(doc._id);
-//            this.db.collection(collection_name).remove({local_ID: doc.local_ID}, {fsync: true}, function(err, numberOfRemovedDocs) {
+//            this.db.collection(collection_name).remove({local_ID: doc.ID}, {fsync: true}, function(err, numberOfRemovedDocs) {
 //                callback(err, numberOfRemovedDocs);
 //            });
 //        });

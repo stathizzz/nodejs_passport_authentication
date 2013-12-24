@@ -1,0 +1,9 @@
+extends layout
+
+block a_content
+    include ../mixins/modal
+    mixin resetPasswordModal()
+
+block a_scripts
+    script(src='/javascripts/account/views/reset.js')
+    script(src='/javascripts/account/form-validators/resetValidator.js')

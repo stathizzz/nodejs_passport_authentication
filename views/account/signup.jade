@@ -1,0 +1,11 @@
+extends layout
+
+block a_content
+    include account
+    //include ../mixins/modal
+    mixin alertModal('alert-mod')
+
+block a_scripts
+    script(src='/javascripts/account/views/signup.js')
+    script(src='/javascripts/account/controllers/signupController.js')
+    script(src='/javascripts/account/form-validators/accountValidator.js')

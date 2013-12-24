@@ -1,0 +1,24 @@
+!!! transitional
+html
+    head
+        meta(http-equiv = 'Content-Type', content = 'text/html; charset=UTF-8')
+        title= subject
+    body
+        if (fullname)
+            h1 Hi #{fullname},
+        else
+            h1 Hi #{email},
+        br
+        br
+        span Your id is :
+            strong #{email}
+        br
+        br
+        a(href='#{link}') Please click here to reset your password
+        br
+        br
+        span Cheers,
+        br
+        a(href="#{symma_link}") The Symma team
+        br: br
+        //-#{body}

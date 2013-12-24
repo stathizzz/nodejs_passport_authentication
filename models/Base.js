@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2003-2013, Efstathios D. Sfecas  <stathizzz@gmail.com>
+ Copyright (c) 2013-2014, Efstathios D. Sfecas  <stathizzz@gmail.com>
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -20,42 +20,45 @@
  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-var MongoClient = require('mongodb').MongoClient,
-    config = require('./../config/bootstrapper').Configurator;
+var _ = require('underscore'),
+    MongoClient = require('mongodb').MongoClient;
 
-module.exports = function(db) {
-    this.db = db;
+module.exports = function() {
+    //this.db = db;
 };
 module.exports.prototype = {
-	extend: function(properties) {
-		var Child = module.exports;
-		Child.prototype = module.exports.prototype;
-		for(var key in properties) {
-			Child.prototype[key] = properties[key];
-		}
-		return Child;
-	},
-    initDB : function(config, callback) {
-        var conStr = "mongodb://" + config.mongo.host + ":" + config.mongo.port + "/" + config.mongo.db_name;
+//    extend: function(properties) {
+//    var Child = module.exports;
+//    Child.prototype = module.exports.prototype;
+//    for(var key in properties) {
+//        Child.prototype[key] = properties[key];
+//    }
+//    return Child;
+//    },
+    extend: function(child) {
+        return _.extend({}, this, child);
+    },
+    initDB : function(settings, callback) {
+        var conStr = "mongodb://" + settings.mongo.host + ":" + settings.mongo.port + "/" + settings.mongo.db_name;
         var self = this;
         MongoClient.connect(conStr, function(err, db) {
             self.db = db;
-            self.db_name = config.mongo.db_name;
-            callback(err, db);
+            self.db_name = settings.mongo.db_name;
+            if (callback) callback(err, db);
         });
     },
-	setDB: function(db) {
-		this.db = db;
-	},
+    setDB: function(db) {
+        this.db = db;
+    },
     getDB: function() {
         return this.db;
     },
     getDBName: function () {
         return this.db_name;
     },
-	collection: function(name) {
-		if(this.db._collection) return this.db._collection;
-		return this.db._collection = this.db.collection(name);
-	}
+    collection: function(name) {
+        if(this.db._collection) return this.db._collection;
+        return this.db._collection = this.db.collection(name);
+    }
 };
 

@@ -7,12 +7,17 @@
   },
   "dependencies": {
     "express": "*",
+    "underscore": "*",
     "jade": "*",
+    "stylus": "*",
     "mongodb": "*",
     "nodemon": "*",
     "passport": "*",
     "passport-local": "*",
     "passport-facebook": "*",
-    "connect-flash": "*"
+    "passport-twitter": "*",
+    "passport-google-oauth": "*",
+    "connect-flash": "*",
+    "express-mailer": "*"
   }
 }
