@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2003-2013, Efstathios D. Sfecas  <stathizzz@gmail.com>
+ Copyright (c) 2013-2014, Efstathios D. Sfecas  <stathizzz@gmail.com>
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
